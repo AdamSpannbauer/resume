@@ -1,0 +1,5 @@
+organization,position,detail,start_date,end_date,education,color
+Maryville College,Bachelors of Arts,Psychology/Stats/Math,2010-09,2015-05,TRUE,#5F0516
+University of Tennessee,Master of Science, Business Analytics,2014-09,2015-12,TRUE,#FF8200
+Clayton Homes,Process Improvement,VBA dashboards/process mapping,2012-03,2015-12,FALSE,#0077C0
+Eastman Chemical Company,Analytics Consultant,"data science/R programmer/Shiny devoloper",2015-12,current,FALSE,#D30F20
