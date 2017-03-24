@@ -44,7 +44,7 @@ project_df <- read_csv("projects.csv", col_types = "ccccl") %>%
   mutate(organization = fct_reorder(organization, job_i))
   
 
-colors <- resume_data %>% 
+colors <- project_df %>% 
   group_by(organization,color) %>% 
   summarise() %>% 
   ungroup() %>% 
@@ -78,7 +78,7 @@ plot_ly(project_df,
             name  = "projects",
             line = list(
               color="black",
-              dash="dash"
+              dash="dot"
               ),
             opacity=.3,
             hoverinfo="none") %>% 
@@ -109,52 +109,3 @@ plot_ly(project_df,
                           arrowhead = 1,
                           ax = -40,
                           ay = -30))
-
-plot_ly(resume_data,
-        x      = ~month_i,
-        y      = ~data,
-        color  = ~organization,
-        colors = colors,
-        type   = "scatter",
-        mode   = "lines",
-        line   = list(width=3),
-        hoverinfo = "text",
-        text = ~paste0(paste0(organization),
-                       "<br>",
-                       paste0(position),
-                       ifelse(is.na(detail),
-                              "",
-                              paste0("<br>",detail)))) %>% 
-  layout(title="",
-         xaxis=list(
-           title="",
-           tickmode="array",
-           tickvals=time_labels$month_i,
-           ticktext=time_labels$year,
-           tickangle = 45
-           ),
-         yaxis=list(
-           range = ~c(min(data)-2, 
-                      max(data)+2),
-           title = "",
-           zeroline = FALSE,
-           showline = FALSE,
-           showticklabels = FALSE,
-           showgrid = FALSE
-         ),
-         margin=list(b=75),
-         annotations=list(x = ~month_i[which(month==lexRankr_release)],
-                          y = ~data[which(month==lexRankr_release)],
-                          text = "lexRankr released on CRAN",
-                          xref = "x",
-                          yref = "y",
-                          showarrow = TRUE,
-                          arrowhead = 1,
-                          ax = -40,
-                          ay = -30)) %>% 
-  add_trace(x    = project_df$month_i,
-            y    = project_df$project_count,
-            type = "scatter",
-            mode = "lines")
-
-
