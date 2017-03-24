@@ -11,6 +11,25 @@ convert_dates <- function(yyyymm_col) {
     as.Date()
 }
 
+# add 'noise' to a vector i.e. add 
+# random nums in a range to each elemen in vector
+year_ceiling <- function(date) {
+  year <- substr(date,1,4) %>% 
+    as.numeric()
+  next_year <- year + 1
+  
+  paste0(next_year, "-01-01") %>% 
+    as.Date()
+}
+
+year_floor <- function(date) {
+  year <- substr(date,1,4) %>% 
+    as.numeric()
+
+  paste0(year, "-01-01") %>% 
+    as.Date()
+}
+
 # Custom imputation function that interpolates missing values linearly and
 # replaces extreme NAs by the extreme values
 myImpute <- function(vec){
