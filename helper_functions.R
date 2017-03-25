@@ -55,3 +55,27 @@ myImpute <- function(vec){
   
   vec
 }
+
+add_org_traces <- function(p, resume_data) {
+  resume_data <- resume_data %>% 
+    arrange(job_i)
+  orgs     <- resume_data$organization
+  colors   <- resume_data$color
+  position <- resume_data$position
+  detail   <- resume_data$detail
+  
+  code_str <- paste0("add_trace(y=~`",orgs,"`,",
+                     "mode='lines',",
+                     "line=list(color='",colors,"', dash='none'),",
+                     "name='", orgs,"',",
+                     "hoverinfo = 'text',",
+                     "text = ~paste0(paste0('",orgs,"'),",
+                     "'<br>',",
+                     "paste0('",position,"'),",
+                     "ifelse(is.na('",detail,"'),",
+                     "'',",
+                     "paste0('<br>','",detail,"'))))") %>%
+    paste(collapse=" %>% \n")
+  
+  eval(parse(text=paste0("p %>% ",code_str)))
+}

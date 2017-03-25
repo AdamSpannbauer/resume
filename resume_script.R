@@ -50,9 +50,9 @@ project_df <- read_csv("projects.csv", col_types = "ccccl") %>%
 plot_data <- resume_data %>% 
   # join data on month 
   left_join(project_df, by=c("month", "organization", "education")) %>% 
-  mutate(proj_i       = myImpute(proj_i)) %>%
+  mutate(proj_i_imp   = myImpute(proj_i)) %>%
   # create dummy data centered on project line for time series effect
-  mutate(simul_data   = proj_i + runif(length(proj_i),-.5,.5)) %>% 
+  mutate(simul_data   = proj_i_imp + runif(length(proj_i_imp),-.5,.5)) %>% 
   # make org facter and reorder for appearance in legend/colors
   mutate(organization = as_factor(organization)) %>% 
   mutate(organization = fct_reorder(organization, job_i))
@@ -71,8 +71,20 @@ time_labels <- tibble(month = seq(year_ceiling(min(plot_data$month)),
                                   by = "1 year")) %>% 
   left_join(plot_data, by=c("month")) %>% 
   select(month_i, month) %>% 
+  mutate(month_i = seq(month_i[1], 
+                       by=12, 
+                       length.out = length(month_i))) %>% 
   distinct() %>% 
   mutate(year = str_sub(month, end=4))
+
+proj_plot <- plot_data %>%
+  # select(month_i, proj_i) %>% 
+  select(month_i, proj_i,proj_i_imp) %>% 
+  arrange(month_i)
+
+# proj_y <- proj_plot$proj_i
+proj_y <- proj_plot$proj_i_imp
+proj_x <- proj_plot$month_i
 
 plot_ly(plot_data,
         x      = ~month_i,
@@ -89,33 +101,26 @@ plot_ly(plot_data,
                        ifelse(is.na(detail),
                               "",
                               paste0("<br>",detail)))) %>% 
-  add_trace(x     = ~month_i,
-            y     = ~proj_i,
-            name = "Project Count",
-            line = list(
-              color="black",
-              dash="dot"
-              ),
+  add_trace(x    = proj_x,
+            y    = proj_y,
+            name = "Project Count..",
+            line = list(color="black",width=1),
             opacity=.3,
             hoverinfo="none",
             showlegend = FALSE) %>% 
   layout(title="",
-         xaxis=list(
-           title="",
+         xaxis=list(title="",
            tickmode="array",
            tickvals=time_labels$month_i,
            ticktext=time_labels$year,
-           tickangle = 45
-         ),
-         yaxis=list(
-           range = ~c(min(simul_data)-2, 
+           tickangle = 45),
+         yaxis=list(range = ~c(min(simul_data)-2, 
                       max(simul_data)+2),
            title = "",
            zeroline = FALSE,
            showline = FALSE,
            showticklabels = FALSE,
-           showgrid = FALSE
-         ),
+           showgrid = FALSE),
          margin=list(b=75),
          annotations=list(x = ~month_i[which(month==lexRankr_release)],
                           y = ~simul_data[which(month==lexRankr_release)],
@@ -125,4 +130,7 @@ plot_ly(plot_data,
                           showarrow = TRUE,
                           arrowhead = 1,
                           ax = -40,
-                          ay = -30))
+                          ay = -40,
+                          align = "left"))
+
+
