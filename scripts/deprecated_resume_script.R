@@ -2,7 +2,7 @@ library(tidyverse)
 library(stringr)
 library(forcats)
 library(plotly)
-source("helper_functions.R")
+source("scripts/helper_functions.R")
 
 #annotate lexRankr pkg release
 lexRankr_release <- as.Date("2016-07-01")
@@ -12,7 +12,7 @@ set.seed(42)
 ########################################
 # read in resume data and clean data
 ########################################
-resume_data <- read_csv("resume.csv", col_types = "ccccclc") %>%
+resume_data <- read_csv("data/resume.csv", col_types = "ccccclc") %>%
   # index jobs by start date (tie breaker goes to lowest row num & non-zero)
   mutate(job_i = rank(start_date,"first")) %>% 
   # convert dates from YYYY-MM chr to YYYY-MM-DD date
@@ -33,7 +33,7 @@ resume_data <- read_csv("resume.csv", col_types = "ccccclc") %>%
 ########################################
 # read in project data and clean data
 ########################################
-project_df <- read_csv("projects.csv", col_types = "ccccl") %>% 
+project_df <- read_csv("data/projects.csv", col_types = "ccccl") %>% 
   # convert dates from YYYY-MM chr to YYYY-MM-DD date
   mutate(date  = convert_dates(date)) %>% 
   rename(month = date) %>% 

@@ -1,0 +1,34 @@
+---
+title: "About"
+author: "Adam Spannbauer"
+date: "3/25/2017"
+output: html_document
+---
+
+<p align="center"><img src="https://adamspannbauer.github.io/worklifebalance.github.io/images/face.png" height="125"/></p>
+
+I'm an Analytics Consultant at [Eastman Chemical Company](http://www.eastman.com/Pages/Home.aspx).  I have a passion for learning (especially in the realm of data science and natural language processing).  I'm a huge fan of programming in R, and I currently have 1 package published on CRAN ([lexRankr](https://github.com/AdamSpannbauer/lexRankr)) for extractrive text summarization using lexrank.
+
+```{r, echo=FALSE, warning=FALSE, error=FALSE, message=FALSE, fig.align='center', fig.width=8}
+library(tidyverse)
+library(stringr)
+library(forcats)
+library(plotly)
+library(httr)
+library(cranlogs)
+source("../scripts/helper_functions.R")
+source("../scripts/resume_function.R")
+
+resume_data  <- read_csv("../data/resume.csv", col_types = "ccccclc")
+project_data <- read_csv("../data/projects.csv", col_types = "ccccl")
+
+plot_resume_lexRankr_annotation(resume_data,project_data)
+```
+<strong>About this site</strong>
+
+All opinions and views are my own and do not represent my employer.
+
+This site was built using [blogdown](https://github.com/rstudio/blogdown) with the [lithium theme](https://github.com/yihui/hugo-lithium-theme).   All blog posts are released under a [Creative Commons Attribution-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-sa/4.0/).
+
+
+Contact: spannbaueradam@gmail.com

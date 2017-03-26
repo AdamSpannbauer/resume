@@ -1,5 +1,3 @@
-library(parallel)
-library(httr)
 
 # convert yyyy-mm chr dates to yyyy-mm-01 dates
 # set dates passed as "current" to Sys.Date()
@@ -79,3 +77,20 @@ add_org_traces <- function(p, resume_data) {
   
   eval(parse(text=paste0("p %>% ",code_str)))
 }
+
+###########
+# functions to get cran package downloads
+###########
+get_pkg_rel_date <- function(pkg) {
+    pkg_data <- httr::GET(paste0("http://crandb.r-pkg.org/", pkg, "/all")) %>% 
+      httr::content()
+    pkg_data$timeline[[1]] %>% 
+      as.Date()
+}
+
+get_total_pkg_downloads <- function(pkg, from="release", to=Sys.Date()) {
+  if (from=="release") from <- get_pkg_rel_date(pkg)
+  download_df <- cranlogs::cran_downloads(pkg, from=from, to=to)
+  sum(download_df$count)
+}
+

@@ -2,15 +2,14 @@ library(tidyverse)
 library(stringr)
 library(forcats)
 library(plotly)
-source("helper_functions.R")
-
-#annotate lexRankr pkg release
-lexRankr_release <- as.Date("2016-07-01")
+library(httr)
+library(cranlogs)
+source("scripts/helper_functions.R")
 
 ########################################
 # read in resume data and clean data
 ########################################
-resume_data <- read_csv("resume.csv", col_types = "ccccclc") %>%
+resume_data <- read_csv("data/resume.csv", col_types = "ccccclc") %>%
   # index jobs by start date (tie breaker goes to lowest row num & non-zero)
   mutate(job_i = rank(start_date,"first")) %>% 
   # convert dates from YYYY-MM chr to YYYY-MM-DD date
@@ -20,7 +19,7 @@ resume_data <- read_csv("resume.csv", col_types = "ccccclc") %>%
 ########################################
 # read in project data and clean data
 ########################################
-project_df <- read_csv("projects.csv", col_types = "ccccl") %>% 
+project_df <- read_csv("data/projects.csv", col_types = "ccccl") %>% 
   # convert dates from YYYY-MM chr to YYYY-MM-DD date
   mutate(date  = convert_dates(date)) %>% 
   rename(month = date) %>% 
@@ -70,7 +69,7 @@ full_timeline_df <- tibble(date    = full_timeline,
 # create imputed version of project timeline to center org data around proj count
 plot_df <- reduce(org_sim_ts, 
                   left_join, by="date", 
-                  .init=resume_ts_df) %>% 
+                  .init=full_timeline_df) %>% 
   left_join(project_df, by=c("date"="month")) %>% 
   mutate(proj_i_imp = myImpute(proj_i))
 
@@ -94,13 +93,14 @@ no_annotations_plotly <-
         connectgaps=TRUE,
         type = "scatter",
         mode = "lines+markers",
-        name = "Data Projects",
+        name = "Notable Projects",
         line = list(color="black", 
                     dash="dot"),
         hoverinfo="text",
         text = ~paste0(project,"<br>",detail_proj)) %>% 
   add_org_traces(resume_data) %>% 
-  layout(title="",
+  layout(title="Employment & Education",
+         margin = list(t=50),
          xaxis=list(
            title="",
            tickmode="array",
@@ -108,31 +108,37 @@ no_annotations_plotly <-
            ticktext=time_labels$yyyy,
            tickangle = 45
          ),yaxis=list(
-           title = "",
+           title = "<sub>Notable Project Count</sub>",
            zeroline = FALSE,
            showline = FALSE,
            showticklabels = FALSE,
            showgrid = FALSE
          ))
 
-no_annotations_plotly
+# no_annotations_plotly
 
 ########################################
 # add manual annotations for certain projects
 ########################################
-lexRankr_release <- as.Date("2016-07-01")
+# get data to annotate lexRankr
+lexRankr_release   <- get_pkg_rel_date("lexRankr") %>% 
+  str_sub(end=-4) %>% 
+  paste0("-01")
+lexRankr_downloads <- get_total_pkg_downloads("lexRankr")
+
 annotated_plotly <- no_annotations_plotly %>%
   layout(
     annotations=list(x = ~month_i[which(date==lexRankr_release)],
                      y = ~proj_i_imp[which(date==lexRankr_release)],
-                     text = "lexRankr released on CRAN",
+                     text = paste0("published lexRankr",
+                                   "<br>(",lexRankr_downloads," CRAN downloads)"),
                      xref = "x",
                      yref = "y",
                      showarrow = TRUE,
                      arrowhead = 1,
                      ax = -100,
                      ay = -40,
-                     align = "left")
+                     align = "center")
     )
 
-annotated_plotly
+# annotated_plotly
